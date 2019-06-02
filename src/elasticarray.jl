@@ -39,8 +39,22 @@ ElasticArray{T,N}(A::AbstractArray{U,N}) where {T,N,U} = copyto!(ElasticArray{T}
 ElasticArray{T}(A::AbstractArray{U,N}) where {T,N,U} = ElasticArray{T,N}(A)
 ElasticArray(A::AbstractArray{T,N}) where {T,N} = ElasticArray{T,N}(A)
 
+function ElasticArray{T,N,M}(A::AbstractArray) where {T,N,M}
+    M == N - 1 || throw(ArgumentError("ElasticArray{T,N=$N,M=$M} does not satisfy requirement M == N-1"))
+    ElasticArray{T,N}(A)
+end
+
+
+Base.convert(::Type{ElasticArray{T,N,M}}, A::ElasticArray{T,N,M}) where {T,N,M} = A
+Base.convert(::Type{ElasticArray{T,N,M}}, A::AbstractArray) where {T,N,M} = ElasticArray{T,N,M}(A)
+
+Base.convert(::Type{ElasticArray{T,N}}, A::ElasticArray{T,N}) where {T,N} = A
 Base.convert(::Type{ElasticArray{T,N}}, A::AbstractArray) where {T,N} = ElasticArray{T,N}(A)
+
+Base.convert(::Type{ElasticArray{T}}, A::ElasticArray{T}) where {T} = A
 Base.convert(::Type{ElasticArray{T}}, A::AbstractArray) where {T} = ElasticArray{T}(A)
+
+Base.convert(::Type{ElasticArray}, A::ElasticArray) = A
 Base.convert(::Type{ElasticArray}, A::AbstractArray) = ElasticArray(A)
 
 
@@ -100,14 +114,14 @@ end
     dest
 end
 
-@inline Compat.copyto!(dest::ElasticArray, doffs::Integer, src::AbstractArray, args::Integer...) = _copyto_impl!(dest, doffs, src, args...)
-@inline Compat.copyto!(dest::ElasticArray, src::AbstractArray) = _copyto_impl!(dest, src)
+@inline Base.copyto!(dest::ElasticArray, doffs::Integer, src::AbstractArray, args::Integer...) = _copyto_impl!(dest, doffs, src, args...)
+@inline Base.copyto!(dest::ElasticArray, src::AbstractArray) = _copyto_impl!(dest, src)
 
-@inline Compat.copyto!(dest::ElasticArray, doffs::Integer, src::ElasticArray, args::Integer...) = _copyto_impl!(dest, doffs, src, args...)
-@inline Compat.copyto!(dest::ElasticArray, src::ElasticArray) = _copyto_impl!(dest, src)
+@inline Base.copyto!(dest::ElasticArray, doffs::Integer, src::ElasticArray, args::Integer...) = _copyto_impl!(dest, doffs, src, args...)
+@inline Base.copyto!(dest::ElasticArray, src::ElasticArray) = _copyto_impl!(dest, src)
 
-@inline Compat.copyto!(dest::AbstractArray, doffs::Integer, src::ElasticArray, args::Integer...) = copyto!(dest, doffs, src.data, args...)
-@inline Compat.copyto!(dest::AbstractArray, src::ElasticArray) = copyto!(dest, src.data)
+@inline Base.copyto!(dest::AbstractArray, doffs::Integer, src::ElasticArray, args::Integer...) = copyto!(dest, doffs, src.data, args...)
+@inline Base.copyto!(dest::AbstractArray, src::ElasticArray) = copyto!(dest, src.data)
 
 
 Base.similar(::Type{ElasticArray{T}}, dims::Dims{N}) where {T,N} = ElasticArray{T}(undef, dims...)

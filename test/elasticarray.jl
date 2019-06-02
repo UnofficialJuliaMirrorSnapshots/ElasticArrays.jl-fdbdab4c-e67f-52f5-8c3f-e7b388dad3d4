@@ -1,11 +1,9 @@
 # This file is a part of ElasticArrays.jl, licensed under the MIT License (MIT).
 
 using ElasticArrays
-using Compat
-using Compat.Test
-using Compat.Random
-using Compat: axes
+using Test
 
+using Random
 
 @testset "elasticarray" begin
     test_dims = (3, 2, 4)
@@ -178,16 +176,32 @@ using Compat: axes
 
         test_A() do A
             E = @inferred convert(ElasticArray{Float64,3}, A)
-            @test E isa ElasticArray
+            @test E isa ElasticArray{Float64,3,2}
             @test E == A
             @test eltype(E) == Float64
+
+            @test convert(ElasticArray{Float64,3,2}, E) === E
+            @test convert(ElasticArray{Float64,3}, E) === E
+            @test convert(ElasticArray{Float64}, E) === E
+            @test convert(ElasticArray, E) === E
+
+            @test E == @inferred convert(ElasticArray{Float64,3,2}, A)
+            @test_throws ArgumentError convert(ElasticArray{Float64,3,1}, A)
         end
 
         test_A() do A
             E = @inferred convert(ElasticArray{Float32,3}, A)
-            @test E isa ElasticArray
+            @test E isa ElasticArray{Float32,3,2}
             @test E == A
             @test eltype(E) == Float32
+
+            @test convert(ElasticArray{Float32,3,2}, E) === E
+            @test convert(ElasticArray{Float32,3}, E) === E
+            @test convert(ElasticArray{Float32}, E) === E
+            @test convert(ElasticArray, E) === E
+
+            @test E == @inferred convert(ElasticArray{Float32,3,2}, A)
+            @test_throws ArgumentError convert(ElasticArray{Float32,3,4}, A)
         end
 
         test_A() do A
